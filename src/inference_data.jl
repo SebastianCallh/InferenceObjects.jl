@@ -189,17 +189,29 @@ function Base.show(io::IO, ::MIME"text/plain", data::InferenceData)
     end
     return nothing
 end
+
 function Base.show(io::IO, mime::MIME"text/html", data::InferenceData)
-    show(io, mime, HTML("<div>InferenceData"))
-    for (name, group) in pairs(groups(data))
-        show(io, mime, HTML("""
-        <details>
-        <summary>$name</summary>
-        <pre><code>$(sprint(show, "text/plain", group))</code></pre>
-        </details>
-        """))
-    end
-    return show(io, mime, HTML("</div>"))
+	show(io, mime, HTML("""<style>
+	.xr-header { font-weight: bold;  }
+	.xr-sections li label { cursor: pointer; }
+	</style>"""))
+	show(io, mime, HTML("""
+	<div>
+	<div class="xr-header">InferenceData</div>
+	<ul class="xr-sections">
+	"""))
+	for (name, group) in pairs(groups(data))
+        id = uuid4()
+		show(io, mime, HTML("""
+		<li>
+        <label for="check-$id">$name</label>
+        <input id="check-$id" class="xr-toggle" type="checkbox" checked="true" style="display: none; ">
+        <div class="checked-item">$(sprint(show, "text/html", group))</div>
+		</li>
+		"""))
+	end
+	
+	return show(io, mime, HTML("</ul></div>"))
 end
 
 """

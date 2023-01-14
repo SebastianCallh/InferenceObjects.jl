@@ -132,3 +132,18 @@ Base.convert(T::Type{<:DimensionalData.DimStack}, data::Dataset) = convert(T, pa
 function DimensionalData.rebuild(data::Dataset; kwargs...)
     return Dataset(DimensionalData.rebuild(parent(data); kwargs...))
 end
+
+function Base.show(io::IO, mime::MIME"text/html", data::Dataset)
+    show(io, mime, HTML("""<ul>"""))
+	for (name, group) in pairs(data)
+        id = uuid4()
+		show(io, mime, HTML("""
+		<li>
+        <label for="check-$id">$name</label>
+        <input id="check-$id" class="xr-toggle" type="checkbox" checked="true" style="display: none; ">
+        <div class="checked-item">$(size(group))</div>
+		</li>
+		"""))
+	end
+    show(io, mime, HTML("""</ul>"""))
+end
